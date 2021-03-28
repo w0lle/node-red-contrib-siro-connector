@@ -1,0 +1,79 @@
+<script type="text/javascript">
+    RED.nodes.registerType('Control-Blind', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            server: { value: "", type: "connector-api-config" },
+            device: { value: {} }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function () {
+            return this.name || "Control Blind";
+        },
+        oneditprepare: function () {
+            function searchAndSelectDevices() {
+                var current = $('#node-input-device').val();
+                $('#node-input-device').replaceWith('<select id="node-input-device" style="width: 100%"></select>');
+                $('#node-input-device').append('<option selected="selected" value="null">' + "Searching" + '</option>');
+                console.log("Calling for siro devices...");
+                var bridgeConfig = RED.nodes.node($('#node-input-server option:selected').val());
+                $.getJSON('getSiroDevices' + bridgeConfig.user, function (data) {
+                    console.log("getSiroDevices", data);
+                    if (!data && data.length <= 0) {
+                        NodeRed.error('searchAndSelectDevices got no devices!');
+                        RED.notify("searchAndSelectDevices got no devices. Please configure a device.", "error");
+                    }
+
+                    // RESET OPTIONS
+                    $('#node-input-device').empty();
+
+                    // SET SWITCHES AS OPTIONS
+                    data.forEach(function (device) {
+                        $('#node-input-device').append('<option value="' + JSON.stringify({ mac: device.mac, type: device.deviceType }).replace(/"/g, '&quot;') + '">' + device.deviceAlias + '</option>');
+                    });
+
+                    // SELECT CURRENT VALUE
+                    $('#node-input-device').val(current);
+                });
+            }
+
+            $('#node-config-input-scan-devices').click(function () {
+                searchAndSelectDevices();
+            });
+            searchAndSelectDevices(); // init call such that select text is correctly shown
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="Control-Blind">
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-tag"></i> Connection</label>
+        <input type="text" id="node-input-server" placeholder="Connection">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-hand-pointer-o"></i> Device</label>
+        <div style="display: inline-block; position: relative; width: 70%; height: 20px;">
+            <div style="position: absolute; left: 0px; right: 40px;">
+                <input type="text" id="node-input-device" placeholder="Nothing selected" style="width: 100%"/>
+            </div>
+            <a id="node-config-input-scan-devices" class="editor-button" style="position: absolute; right: 0px; top: 0px;">
+                <i class="fa fa-search"></i>
+            </a>
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="Control-Blind">
+    <p>A simple node that controls SIRO blinds.</p>
+    <h3>Message Payload</h3>
+    <p>In order to trigger an action with the device configured in this node, you can simply pass a message payload
+        to this node, which contains the following siro object:
+    </p>
+</script>

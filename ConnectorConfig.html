@@ -1,0 +1,39 @@
+<script type="text/javascript">
+    RED.nodes.registerType('connector-api-config', {
+        category: 'config',
+        defaults: {
+            host: { value: "https://connectoreu.shadeconnector.com", required: true },
+            port: { value: 8443, required: true, validate: RED.validators.number() },
+            user: { value: "", required: true },
+            pw: { value: "", required: true },
+            AccessToken: { value: "" },
+            heartbeatTimeout: { value: 30000, required: true, validate: RED.validators.number() }
+        },
+        label: function () {
+            return this.user;
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="connector-api-config">
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="fa fa-bookmark"></i> Host</label>
+        <input type="text" id="node-config-input-host">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-bookmark"></i> Port</label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-user"><i class="fa fa-bookmark"></i> Username</label>
+        <input type="text" id="node-config-input-user">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pw"><i class="fa fa-bookmark"></i> Password</label>
+        <input type="password" id="node-config-input-pw">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-heartbeatTimeout"><i class="fa fa-bookmark"></i> Heartbeat Timeout</label>
+        <input type="text" id="node-config-input-heartbeatTimeout">
+    </div>
+</script>
