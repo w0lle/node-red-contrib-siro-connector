@@ -16,6 +16,7 @@ module.exports = function (RED) {
         var node = this;
         node.on('input', function (msg) {
             let operation = "5";
+            let TempTargetPosition;
             if (msg.payload.siro && msg.payload.siro.operation) {
                 switch (msg.payload.siro.operation.toUpperCase()) {
                     case "DOWN":
@@ -63,6 +64,10 @@ module.exports = function (RED) {
                     case "SET_END_DOWN":
                         operation = "14";
                         break;
+                    case "TARGET_POSITION":
+                        operation = "5";
+                        TempTargetPosition = msg.payload.siro.targetPosition;
+                        break;
 
                     default:
                         // defaulting to status operation
@@ -73,13 +78,13 @@ module.exports = function (RED) {
             console.log("msg uuid", config.device, operation);
             let device = JSON.parse(config.device);
             console.log("msg uuid", device, operation);
-            // TODO: make targetPosition call possible (call status before?)
             formData = {
                 accessToken: this.server.AccessToken,
                 msgId: uuid.generateUUID().replace(/-/g, '').toUpperCase(),
                 mac: device.mac,
                 deviceType: device.type,
-                operation: operation
+                operation: operation,
+                targetPosition: TempTargetPosition ? TempTargetPosition : undefined
             };
             request.post({
                 url: this.server.host + ':' + this.server.port + '/userCenter/deviceService/deviceControl',

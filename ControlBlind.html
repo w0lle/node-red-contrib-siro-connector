@@ -22,8 +22,8 @@
                 var bridgeConfig = RED.nodes.node($('#node-input-server option:selected').val());
                 $.getJSON('getSiroDevices' + bridgeConfig.user, function (data) {
                     console.log("getSiroDevices", data);
-                    if (!data && data.length <= 0) {
-                        NodeRed.error('searchAndSelectDevices got no devices!');
+                    if (!data || data.length == 0) {
+                        //NodeRed.error('searchAndSelectDevices got no devices!');
                         RED.notify("searchAndSelectDevices got no devices. Please configure a device.", "error");
                     }
 
@@ -71,9 +71,45 @@
 </script>
 
 <script type="text/html" data-help-name="Control-Blind">
+    <style>pre code {
+        display: block;
+        font-size: 11px !important;
+        line-height: 15px;
+      }</style>
     <p>A simple node that controls SIRO blinds.</p>
     <h3>Message Payload</h3>
     <p>In order to trigger an action with the device configured in this node, you can simply pass a message payload
         to this node, which contains the following siro object:
     </p>
+    <pre><code>{
+    "siro": {
+        "operation": "YOUR_OPERATION"
+    }
+}</code></pre>
+    <p>where <pre><code>YOUR_OPERATION</code></pre> can be one of the following:</p>
+    <ul>
+        <li>DOWN</li> 
+        <li>UP</li> 
+        <li>STOP</li> 
+        <li>CHANGE_DIRECTION</li> 
+        <li>SET_LIMIT</li> 
+        <li>STATUS</li> 
+        <li>BATTERY</li> 
+        <li>STEP_UP</li> 
+        <li>STEP_DOWN</li> 
+        <li>SAVE_END_UP</li> 
+        <li>SAVE_END_DOWN</li> 
+        <li>SAVE_FAV</li> 
+        <li>GO_TO_FAV</li> 
+        <li>SET_END_UP</li> 
+        <li>SET_END_DOWN</li> 
+    </ul>
+    <p>If you want to set the position of the blind to a certain value, use this object instead (example for 70%):</p>
+    <pre><code>{
+    "siro": {
+        "operation": "TARGET_POSITION",
+        "targetPosition": 70
+    }
+}</code></pre>
+<p><b>NOTE:</b> In order to list your blinds in this contrib you have to assign every blind to a room.</p>
 </script>
