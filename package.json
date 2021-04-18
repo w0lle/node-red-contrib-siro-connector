@@ -11,6 +11,7 @@
     "url": "git+https://github.com/mgreg89/node-red-contrib-siro-connector.git"
   },
   "keywords": [
+    "node-red",
     "node",
     "red",
     "nodered",
