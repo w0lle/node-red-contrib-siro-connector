@@ -1,3 +1,7 @@
+# 1.2.5
+## Fixes
+* setting targetPosition to 0 did not result in an action
+
 # 1.2.3 / 1.2.4
 ## Fixes
 * output of Control-Blind node was triggered regardless of configured device

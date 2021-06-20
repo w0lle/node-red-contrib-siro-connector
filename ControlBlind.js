@@ -130,7 +130,7 @@ module.exports = function (RED) {
 
             let device = JSON.parse(config.device);
 
-            if (TempTargetPosition) {
+            if (TempTargetPosition != undefined) {
                 operation = undefined;
             }
             controlDevice(operation, TempTargetPosition, device.mac, device.type, nodeID);
