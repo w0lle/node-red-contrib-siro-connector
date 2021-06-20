@@ -137,7 +137,8 @@ module.exports = function (RED) {
 
         server.client.on('message', (msg, rinfo) => {
             let obj = JSON.parse(msg.toString());
-            if (obj.msgType === "WriteDeviceAck") {
+            let device = JSON.parse(config.device);
+            if (obj.msgType === "WriteDeviceAck" && obj.mac == device.mac) {
                 node.send(obj);
             }
         });
