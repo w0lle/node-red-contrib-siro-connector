@@ -2,6 +2,11 @@ module.exports = function (RED) {
     const request = require('request');
     const md5 = require('md5');
     const uuid = require('./lib/uuid');
+    const dgram = require('dgram');
+
+    let key = "";
+    let token;
+
     var schedule = require('node-schedule');
     let connected = null;
     var AccessToken;
@@ -9,23 +14,37 @@ module.exports = function (RED) {
     let SheduleToken;
     let ApiURL;
     let NodeRed;
+    let client;
 
     function ConnectorConfigNode(n) {
         NodeRed = this;
+        RED.nodes.createNode(this, n);
         this.host = n.host;
         this.port = n.port;
+        this.key = n.key;
         ApiURL = this.host + ':' + this.port;
         this.user = n.user;
         this.pw = n.pw;
-        this.heartbeatTimeout = n.heartbeatTimeout;
         login().then((token) => {
             this.AccessToken = token;
         });
         this.AccessToken = '';
-        RED.nodes.createNode(this, n);
+      
+        client = dgram.createSocket('udp4');
+
+        client.bind(32101, function () {
+            client.addMembership('238.0.0.18');
+        })
+
+        this.on('close', function(done) {
+            client.close(done());
+        });
+
+        getDeviceList();
+        this.client = client;
 
         // endpoint for getting siro devices
-        RED.httpAdmin.get("/getSiroDevices" + NodeRed.user, RED.auth.needsPermission('sirodevices.read'), function (req, res) {
+        RED.httpAdmin.get("/getSiroDevices" + NodeRed.user, RED.auth.needsPermission('sirodevices.read'), async function (req, res) {
             ReadDevicesFromServer().then(function (devices) {
                 res.json(devices);
             });
@@ -37,6 +56,14 @@ module.exports = function (RED) {
             });
             this.log('Token refresh Shedule added!');
         }
+
+        client.on('message', (msg, rinfo) => {
+            let obj = JSON.parse(msg.toString());
+            if(obj && obj.token && !this.token) {
+                this.token = obj.token;
+            }
+            //console.log("new incoming message", obj, rinfo);
+        });
     }
     RED.nodes.registerType("connector-api-config", ConnectorConfigNode);
 
@@ -130,6 +157,19 @@ module.exports = function (RED) {
         }
     }
 
+    function getDeviceList() {
+        let sendData_obj = {
+            msgType: "GetDeviceList",
+            msgID: Date.now()+''+''
+        }
+        let sendData = JSON.stringify(sendData_obj);
+        client.send(sendData, 32100, '238.0.0.18', function (error) {
+            if (error) {
+                console.log("Siro-Connector - Error while sending:", error)
+            }
+        })
+    }
+
     function ReadDevicesFromServer() {
         return new Promise((resolve, reject) => {
             request.post({
@@ -155,7 +195,6 @@ module.exports = function (RED) {
                         var obj = body.areas[0].childAreas[0].childAreas[key];
 
                         for (let key2 in obj.devices) {
-                            console.log("obj.devices", obj.devices);
                             let device = obj.devices[key2];
                             devices.push(device);
                         }

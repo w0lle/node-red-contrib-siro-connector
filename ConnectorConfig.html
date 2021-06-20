@@ -2,11 +2,14 @@
     RED.nodes.registerType('connector-api-config', {
         category: 'config',
         defaults: {
+            key: { value: "", required: true },
             host: { value: "https://connectoreu.shadeconnector.com", required: true },
             port: { value: 8443, required: true, validate: RED.validators.number() },
             user: { value: "", required: true },
             pw: { value: "", required: true },
             AccessToken: { value: "" },
+            token: { value: "" },
+            client: { value: "" },
             heartbeatTimeout: { value: 30000, required: true, validate: RED.validators.number() }
         },
         label: function () {
@@ -16,6 +19,11 @@
 </script>
 
 <script type="text/html" data-template-name="connector-api-config">
+    <div class="form-row">
+        <label for="node-config-input-key"><i class="fa fa-bookmark"></i> Key</label>
+        <input type="text" id="node-config-input-key">
+    </div>
+    <p>Click the about page of the connector app 5 times to get the key.</p>
     <div class="form-row">
         <label for="node-config-input-host"><i class="fa fa-bookmark"></i> Host</label>
         <input type="text" id="node-config-input-host">
