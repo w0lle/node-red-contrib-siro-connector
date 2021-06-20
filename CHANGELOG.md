@@ -1,4 +1,4 @@
-# 1.2.3
+# 1.2.3 / 1.2.4
 ## Fixes
 * output of Control-Blind node was triggered regardless of configured device
 

@@ -20,9 +20,8 @@ module.exports = function (RED) {
         })
     }
 
-    controlDevice = function (operation, targetPosition, mac, deviceType) {
-        //adapter.log.info("enter device control")
-        console.log("controlDevice", operation, targetPosition, mac, deviceType, server);
+    controlDevice = function (operation, targetPosition, mac, deviceType, nodeID) {
+        // console.log("controlDevice", operation, targetPosition, mac, deviceType, server);
         let sendData_obj;
         if (operation !== undefined) {
             sendData_obj = {
@@ -30,7 +29,7 @@ module.exports = function (RED) {
                 mac: mac,
                 deviceType: deviceType,
                 AccessToken: acc.generateAcc(server.token, server.key),
-                msgID: Date.now()+'',
+                msgID: Date.now() + '' + nodeID,
                 data: {
                     operation: operation
                 }
@@ -42,13 +41,12 @@ module.exports = function (RED) {
                 mac: mac,
                 deviceType: deviceType,
                 AccessToken: acc.generateAcc(server.token, server.key),
-                msgID: Date.now()+'',
+                msgID: Date.now() + '' + nodeID,
                 data: {
                     targetPosition: targetPosition
                 }
             }
         }
-        console.log("sendData_obj", sendData_obj)
         sendData(JSON.stringify(sendData_obj));
         setTimeout(() => { sendData(JSON.stringify(sendData_obj)) }, 200);
     }
@@ -56,9 +54,12 @@ module.exports = function (RED) {
     function ControlBlindNode(config) {
         RED.nodes.createNode(this, config);
 
+        let nodeID = uuid.generateUUID().substring(0, 6);
+        let lastMsgID;
+
         // Retrieve the config node
         server = RED.nodes.getNode(config.server);
-        console.log("got server", RED.nodes.getNode(config.server), config);
+        // console.log("got server", RED.nodes.getNode(config.server), config);
         if (!server) {
             // No config node configured
             this.error("Control Blinds - No API connection was configured. Please add a Connection to this node.");
@@ -132,13 +133,18 @@ module.exports = function (RED) {
             if (TempTargetPosition) {
                 operation = undefined;
             }
-            controlDevice(operation, TempTargetPosition, device.mac, device.type);
+            controlDevice(operation, TempTargetPosition, device.mac, device.type, nodeID);
         });
 
         server.client.on('message', (msg, rinfo) => {
             let obj = JSON.parse(msg.toString());
             let device = JSON.parse(config.device);
-            if (obj.msgType === "WriteDeviceAck" && obj.mac == device.mac) {
+            if (obj.msgType === "WriteDeviceAck"
+                && obj.mac == device.mac
+                && obj.msgID
+                && obj.msgID.endsWith(nodeID)
+                && (!lastMsgID || lastMsgID < obj.msgID)) {
+                lastMsgID = obj.msgID;
                 node.send(obj);
             }
         });

@@ -19,6 +19,7 @@ module.exports = function (RED) {
     function ConnectorConfigNode(n) {
         NodeRed = this;
         RED.nodes.createNode(this, n);
+
         this.host = n.host;
         this.port = n.port;
         this.key = n.key;
