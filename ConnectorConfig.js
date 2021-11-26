@@ -5,7 +5,7 @@ module.exports = function (RED) {
     const dgram = require('dgram');
 
     let key = "";
-    let token;
+    var token;
 
     var schedule = require('node-schedule');
     let connected = null;
