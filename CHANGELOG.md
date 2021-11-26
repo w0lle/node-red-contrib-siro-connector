@@ -1,3 +1,7 @@
+# 1.2.6
+## Fixes
+* token handling
+
 # 1.2.5
 ## Fixes
 * setting targetPosition to 0 did not result in an action
