@@ -72,7 +72,9 @@ module.exports = function (RED) {
         }
 
         var node = this;
+        var inputMessage;
         node.on('input', function (msg) {
+            inputMessage = msg;
             let operation = 5;
             let TempTargetPosition;
             if (msg.payload.siro && msg.payload.siro.operation) {
@@ -149,15 +151,23 @@ module.exports = function (RED) {
         });
 
         var messageListener = (msg, rinfo) => {
-            let obj = JSON.parse(msg.toString());
+            
+            let obj;
+            if(inputMessage){
+                obj = inputMessage;
+            }else{
+                obj = {payload: {}};
+            }
+
+            obj.payload = JSON.parse(msg.toString());
             let device = JSON.parse(config.device);
 
             if (
-                obj.msgType === 'WriteDeviceAck' &&
-                obj.mac == device.mac &&
-                (!lastMsgID || lastMsgID < obj.msgID)
+                obj.payload.msgType === 'WriteDeviceAck' &&
+                obj.payload.mac == device.mac &&
+                (!lastMsgID || lastMsgID < obj.payload.msgID)
             ) {
-                lastMsgID = obj.msgID;
+                lastMsgID = obj.payload.msgID;
                 node.send(obj);
             }
         };
