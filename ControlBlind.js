@@ -48,7 +48,7 @@ module.exports = function (RED) {
             }
         }
         sendData(JSON.stringify(sendData_obj));
-        setTimeout(() => { sendData(JSON.stringify(sendData_obj)) }, 200);
+        // setTimeout(() => { sendData(JSON.stringify(sendData_obj)) }, 200);
     }
 
     function ControlBlindNode(config) {
