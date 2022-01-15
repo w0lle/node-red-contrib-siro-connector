@@ -1,3 +1,10 @@
+# 1.2.8
+## Fixes
+* axios dep sec vulnerability
+
+## Changes
+* dropped second send command
+
 # 1.2.6
 ## Fixes
 * token handling
